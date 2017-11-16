@@ -1,33 +1,77 @@
 class Pacman {
   constructor() {
-    this.w = px;
+    this.w = px; // width
+
+    this.x = width / 2;         // 14 tiles to the right
+    this.y = px * 23 + px / 2;  // 24 tiles down
+
+    this.dir = RIGHT;     // initial
+    this.speed = 2;       // movement speed
+    this.nextDir = undefined; // next direction (right as default)
+
+    this.collided = false;
+    this.boundery = px / 2; // collision mask
+
     this.col = color(255, 255, 0); // yellow bitch
-
-    this.x = width / 2; // 14 tiles to the right
-    this.y = px * 23 + px / 2; // 24 tiles down
-    this.posX = floor(this.x / px); // tile x-position
-    this.posY = floor(this.y / px); // tile y-position
-
-    this.dir = 2; // 1 - top; 2 - right(initial); 3 - bottom; 4 - left
-    this.speed = 2; // movement speed
   }
 
   show() {
-    // Movement
-    switch(this.dir) {
-      case 1: this.y -= this.speed; break;
-      case 2: this.x += this.speed; break;
-      case 3: this.y += this.speed; break;
-      case 4: this.x -= this.speed; break;
-    }
-
-    // Update tile position
-    this.posX = floor(this.x / px);
-    this.posY = floor(this.y / px);
-
-    // Color
+    // Look of pacman
     noStroke();
     fill(this.col);
     ellipse(this.x, this.y, this.w, this.w);
+    // fill(color(255, 0, 0));
+    // line(this.x, this.y, this.)
+  }
+
+  move() {
+    // Movement
+    if(!this.checkIfCollides(this.nextDir) && this.nextDir) {
+      this.dir = this.nextDir;
+    }
+
+    if(!this.checkIfCollides(this.dir)) {
+      switch(this.dir) {
+        case UP:    this.y -= this.speed; break;
+        case RIGHT: this.x += this.speed; break;
+        case DOWN:  this.y += this.speed; break;
+        case LEFT:  this.x -= this.speed; break;
+      }
+    }
+  }
+
+  getBoundery(dir) {
+    return dir === UP || dir === LEFT ? -this.boundery : this.boundery;
+  }
+
+  checkIfCollides(dir) {
+    switch(dir) {
+      case UP:
+      case DOWN:
+        for(let i = 0; i < walls.length; i++) {
+          let thisWall = walls[i];
+          if(this.x === thisWall.x && this.y + this.getBoundery(dir) === thisWall.y + thisWall.getBoundery(dir)) {
+            return true;
+          }
+        }
+        return false;
+      break;
+
+      case LEFT:
+      case RIGHT:
+        for(let i = 0; i < walls.length; i++) {
+          let thisWall = walls[i];
+          if(this.x + this.getBoundery(dir) === thisWall.x + thisWall.getBoundery(dir) && this.y === thisWall.y) {
+            return true;
+          }
+        }
+        return false;
+      break;
+    }
+  }
+
+  run() {
+    this.show(); // Render pacman
+    this.move(); // Move pacman
   }
 }
